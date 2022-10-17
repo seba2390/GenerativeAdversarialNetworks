@@ -44,7 +44,8 @@ class GenerativeAdversarialNetwork(torch.nn.Module):
     def train_network(self, dataloader, lrs: tuple[float, float] = (0.001, 0.001),
                       wds: tuple[float, float] = (0.000, 0.000), epochs: int = 100,
                       betas: tuple[tuple[float, float], tuple[float, float]] = ((0.9, 0.999), (0.9, 0.999)),
-                      save_images: bool = False, use_wandb: bool = False, label_smooth: float = 0.0):
+                      use_bernoulli: bool = True, save_images: bool = False, use_wandb: bool = False,
+                      label_smooth: float = 0.0):
 
         # Real and fake labels
         real_targets = torch.ones(dataloader.batch_size, 1, device=self.device) * (1 - label_smooth)
@@ -77,6 +78,8 @@ class GenerativeAdversarialNetwork(torch.nn.Module):
                 self.generator.eval()
                 with torch.no_grad():
                     latent_vectors = torch.rand(size=(dataloader.batch_size, self.latent_dims),device=self.device)
+                    if use_bernoulli:
+                        latent_vectors = torch.bernoulli(latent_vectors)
                     generated_images = self.generator.forward(latent_vectors)
 
                 # Loss with generated image inputs and fake_targets as labels
@@ -94,7 +97,9 @@ class GenerativeAdversarialNetwork(torch.nn.Module):
 
                 # Generate images in train mode
                 self.generator.train()
-                latent_vectors = torch.rand(size=(dataloader.batch_size, self.latent_dims),device=self.device)
+                latent_vectors = torch.rand(size=(dataloader.batch_size, self.latent_dims), device=self.device)
+                if use_bernoulli:
+                    latent_vectors = torch.bernoulli(latent_vectors)
                 generated_images = self.generator.forward(latent_vectors)
 
                 # Loss with generated image inputs and real_targets as labels
@@ -135,6 +140,8 @@ class GenerativeAdversarialNetwork(torch.nn.Module):
                     if (epoch + 1) % 1 == 0:
                         self.generator.eval()
                         latent_vectors = torch.rand(size=(nr_images, self.latent_dims),device=self.device)
+                        if use_bernoulli:
+                            latent_vectors = torch.bernoulli(latent_vectors)
                         generated_image_arrays = self.generator.forward(latent_vectors)
                         self.save_image_grid(epoch, generated_image_arrays, ncol=int(np.sqrt(nr_images)))
                         if use_wandb:
@@ -145,6 +152,8 @@ class GenerativeAdversarialNetwork(torch.nn.Module):
                             self.generator.eval()
                             latent_vectors = torch.rand(
                                 size=(nr_images, self.latent_dims), device=self.device)
+                            if use_bernoulli:
+                                latent_vectors = torch.bernoulli(latent_vectors)
                             generated_image_arrays = self.generator.forward(latent_vectors)
                             self.save_image_grid(epoch, generated_image_arrays,
                                                  ncol=int(np.sqrt(nr_images)))
