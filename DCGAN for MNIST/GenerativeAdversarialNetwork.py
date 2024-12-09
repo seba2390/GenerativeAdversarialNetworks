@@ -19,7 +19,7 @@ class GenerativeAdversarialNetwork(torch.nn.Module):
         self.hidden_dims = 128
         self.image_dims = (28, 28)
 
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "mps")
         print("Using device: ", self.device)
 
         self.discriminator = Discriminator(image_dims=self.image_dims, hidden_dims=self.hidden_dims)
@@ -31,6 +31,8 @@ class GenerativeAdversarialNetwork(torch.nn.Module):
     # To save images in grid layout
     @staticmethod
     def save_image_grid(epoch: int, images: torch.Tensor, ncol: int):
+        # Ensure the directory exists
+        os.makedirs('progress_pics', exist_ok=True)
         image_grid = torchvision.utils.make_grid(images, ncol)  # Images in a grid
         image_grid = image_grid.permute(1, 2, 0)  # Move channel last
         image_grid = image_grid.cpu().numpy()  # To Numpy

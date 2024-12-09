@@ -13,7 +13,7 @@ class Generator(torch.nn.Module):
         self.latent_dims = latent_dims
         self.hidden_dims = hidden_dims
         self.image_dims = image_dims
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "mps")
 
         # latent_dims => 28*28 (product of image_dims)
         self.fc = torch.nn.Sequential(
@@ -44,6 +44,7 @@ class Generator(torch.nn.Module):
         self.to(self.device)
 
     def forward(self, latent_vectors: torch.Tensor):
+        latent_vectors = latent_vectors.to(self.device)
         assert len(latent_vectors.shape) == 2, "Batch of latens vector should have shape: (batch size, latent_dims)"
         assert latent_vectors.shape[
                    1] == self.latent_dims, f'Each latent vector in batch should be of size: {self.latent_dims}'

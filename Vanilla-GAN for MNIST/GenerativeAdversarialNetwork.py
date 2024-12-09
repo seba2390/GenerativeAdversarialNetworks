@@ -31,6 +31,9 @@ class GenerativeAdversarialNetwork(torch.nn.Module):
     # To save images in grid layout
     @staticmethod
     def save_image_grid(epoch: int, images: torch.Tensor, ncol: int):
+        # Ensure the directory exists
+        os.makedirs('progress_pics', exist_ok=True)
+
         image_grid = torchvision.utils.make_grid(images, ncol)  # Images in a grid
         image_grid = image_grid.permute(1, 2, 0)  # Move channel last
         image_grid = image_grid.cpu().numpy()  # To Numpy
@@ -121,7 +124,7 @@ class GenerativeAdversarialNetwork(torch.nn.Module):
 
             # Save images and log to wandb
             with torch.no_grad():
-                nr_images = 4  # Choose a number w. integer square root
+                nr_images = 9  # Choose a number w. integer square root
                 if save_images:
                     if (epoch + 1) % 1 == 0:
                         self.generator.eval()

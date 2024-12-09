@@ -10,7 +10,7 @@ class Discriminator(torch.nn.Module):
         # MNIST digit pictures are 28 x 28.
         self.image_dims = image_dims
         self.hidden_dims = hidden_dims
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "mps")
 
         # 1 x 28 x 28 => 32 x 14 x 14
         self.conv1 = torch.nn.Sequential(
@@ -38,6 +38,7 @@ class Discriminator(torch.nn.Module):
         self.to(self.device)
 
     def forward(self, images: torch.Tensor):
+        images = images.to(self.device)
         """Assuming batched data"""
         assert len(
             images.shape) == 4, f'Images should be given as shape: (batch_size, nr_channels, height, width), but is {images.shape}'
